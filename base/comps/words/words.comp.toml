@@ -1,0 +1,14 @@
+[components.words]
+
+# DO NOT MERGE -- pipeline test fixture for the package-build path of the
+# Control Tower integration. Adds a benign spec change that bumps the input
+# fingerprint, so 'azldev component changed' reports the component as
+# changeType=changed and Control Tower will be asked to rebuild it. The
+# Source: URL and lookaside sources file are left at their upstream values
+# so the rebuild can actually fetch the tarball.
+
+[[components.words.overlays]]
+type = "spec-search-replace"
+description = "DO NOT MERGE: tweak Summary to bump input fingerprint and trigger a package-build."
+regex = '^Summary:\s+Dictionary of English words for the /usr/share/dict directory$'
+replacement = "Summary: Dictionary of English words for the /usr/share/dict directory (Azure Linux test build)"

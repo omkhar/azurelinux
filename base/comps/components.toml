@@ -6961,7 +6961,6 @@ includes = ["**/*.comp.toml", "component-check-disablement.toml", "component-min
 [components.wlr-protocols]
 [components.woff2]
 [components.woodstox-core]
-[components.words]
 [components.wqy-zenhei-fonts]
 [components.wsdd]
 [components.wsl-setup]
