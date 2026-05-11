@@ -181,11 +181,13 @@ def main() -> None:
     print("Payload:")
     print(json.dumps(payload, indent=2))
 
-    if args.build_reason == "PullRequest":
-        print(
-            "Skipping Control Tower call - pull request triggers are not supported, yet."
-        )
-        return
+    # TESTING-ONLY: PR skip lifted so we can exercise the prcheck endpoint
+    # from a draft PR. Drop this commit before merging anywhere.
+    # if args.build_reason == "PullRequest":
+    #     print(
+    #         "Skipping Control Tower call - pull request triggers are not supported, yet."
+    #     )
+    #     return
 
     if not components:
         print(

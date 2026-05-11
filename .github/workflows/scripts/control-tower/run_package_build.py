@@ -157,12 +157,15 @@ def main() -> None:
 
     base_url = args.api_base_url.rstrip("/")
 
-    if args.build_reason == "PullRequest":
-        print(
-            "Skipping Control Tower call -- pull request triggers do not submit "
-            "package builds (unmerged code should not consume build capacity)."
-        )
-        return
+    # TESTING-ONLY: PR skip lifted so we can exercise the package-build
+    # submission from a draft PR. Scratch builds are safe to kick off from
+    # arbitrary refs. Drop this commit before merging anywhere.
+    # if args.build_reason == "PullRequest":
+    #     print(
+    #         "Skipping Control Tower call -- pull request triggers do not submit "
+    #         "package builds (unmerged code should not consume build capacity)."
+    #     )
+    #     return
 
     if not components:
         print("No components need a rebuild -- skipping package-build submission.")
