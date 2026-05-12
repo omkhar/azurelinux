@@ -1,5 +1,5 @@
 filesystem-1.1-21.azl3.x86_64.rpm
-kernel-headers-6.6.130.1-3.azl3.noarch.rpm
+kernel-headers-6.6.134.1-2.azl3.noarch.rpm
 glibc-2.38-19.azl3.x86_64.rpm
 glibc-devel-2.38-19.azl3.x86_64.rpm
 glibc-i18n-2.38-19.azl3.x86_64.rpm
@@ -52,8 +52,8 @@ bash-lang-5.2.15-3.azl3.x86_64.rpm
 bzip2-1.0.8-1.azl3.x86_64.rpm
 bzip2-devel-1.0.8-1.azl3.x86_64.rpm
 bzip2-libs-1.0.8-1.azl3.x86_64.rpm
-sed-4.9-1.azl3.x86_64.rpm
-sed-lang-4.9-1.azl3.x86_64.rpm
+sed-4.9-2.azl3.x86_64.rpm
+sed-lang-4.9-2.azl3.x86_64.rpm
 procps-ng-4.0.4-1.azl3.x86_64.rpm
 procps-ng-devel-4.0.4-1.azl3.x86_64.rpm
 procps-ng-lang-4.0.4-1.azl3.x86_64.rpm
@@ -178,8 +178,8 @@ openssl-static-3.3.5-5.azl3.x86_64.rpm
 libcap-2.69-14.azl3.x86_64.rpm
 libcap-devel-2.69-14.azl3.x86_64.rpm
 debugedit-5.0-2.azl3.x86_64.rpm
-libarchive-3.7.7-5.azl3.x86_64.rpm
-libarchive-devel-3.7.7-5.azl3.x86_64.rpm
+libarchive-3.7.7-6.azl3.x86_64.rpm
+libarchive-devel-3.7.7-6.azl3.x86_64.rpm
 rpm-4.18.2-1.azl3.x86_64.rpm
 rpm-build-4.18.2-1.azl3.x86_64.rpm
 rpm-build-libs-4.18.2-1.azl3.x86_64.rpm
