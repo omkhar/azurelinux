@@ -22,8 +22,10 @@ release = { calculation = "manual" }
 #   2. 'fix(firefox): set manual release calculation'
 #   3. 'feat(firefox): add azl_release counter for independent rebuild
 #      tracking' (introduces the azl_release counter mechanism)
-#   4. This change (strip malware-flagged files from source tarball)
-azl_release = "4"
+#   4. 'feat(firefox): strip malware-flagged files from source tarball'
+#   5. This change (override --with-system-fdk-aac in mozconfig
+#      and drop fdk-aac-free-devel BR)
+azl_release = "5"
 
 # Firefox 148.0's mfbt/tests/TestIntegerRange.cpp uses uint8_t/uint16_t/uint32_t/uint64_t
 # without #include <cstdint>. GCC 15 (used in Azure Linux bootstrap) enforces stricter
@@ -54,6 +56,42 @@ description = "Disable crash reporter to avoid GCC 15 breakpad compilation error
 type = "spec-search-replace"
 regex = '%global enable_mozilla_crashreporter 1'
 replacement = '%global enable_mozilla_crashreporter 0'
+
+# AZL does not ship fdk-aac-free (FDK-AAC licensing). Two coordinated
+# overlays are required: simply dropping the BR causes ./mach configure
+# to hard-fail.
+#
+# Mechanism: the Fedora firefox-mozconfig (Source10) ships
+# `ac_add_options --with-system-fdk-aac` unconditionally, which sets the
+# meson option `--with-system-fdk-aac` for the Firefox build. The Fedora
+# mozilla-1667096.patch (Patch401) wires that into a
+# `pkg_check_modules('MOZ_FDK_AAC', 'fdk-aac', when='--with-system-fdk-aac')`
+# in toolkit/moz.configure. Mozilla's pkg_check_modules defaults to
+# `allow_missing=False`, so configure exits 1 if fdk-aac.pc is not in the
+# buildroot — which it won't be once fdk-aac-free is dropped from AZL.
+#
+# We therefore (a) rewrite the mozconfig source line to
+# `--without-system-fdk-aac` via file-search-replace so MOZ_FDK_AAC is
+# never set (and the fdk-aac C code in mozilla-1667096.patch is neither
+# compiled nor linked), and (b) drop the now-unnecessary
+# fdk-aac-free-devel BR.
+#
+# Permanent AZL policy — CELA Not Approved Codecs; no upstream
+# retirement trigger. Update regex on Fedora rebase if upstream reflows
+# firefox-mozconfig; do NOT remove the overlays.
+
+[[components.firefox.overlays]]
+description = "Override `--with-system-fdk-aac` to `--without-system-fdk-aac` in firefox-mozconfig (Source10). Without this, mozilla-1667096.patch's pkg_check_modules('MOZ_FDK_AAC', 'fdk-aac', when='--with-system-fdk-aac') causes ./mach configure to fail when fdk-aac.pc is absent from the buildroot (allow_missing defaults to False)."
+type = "file-search-replace"
+file = "firefox-mozconfig"
+regex = 'ac_add_options --with-system-fdk-aac'
+replacement = 'ac_add_options --without-system-fdk-aac'
+
+[[components.firefox.overlays]]
+description = "Drop BuildRequires: fdk-aac-free-devel (no longer needed once the mozconfig override above disables MOZ_FDK_AAC; fdk-aac-free is being removed from AZL anyway)"
+type = "spec-remove-tag"
+tag = "BuildRequires"
+value = "fdk-aac-free-devel"
 
 # Compose AZL release counter with upstream's Release integer. Uses RPM's
 # `%[ ... ]` expression syntax so the final Release tag stays a single

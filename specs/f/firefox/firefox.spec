@@ -413,7 +413,6 @@ BuildRequires:  libasan
 BuildRequires:  libasan-static
 %endif
 BuildRequires:  perl-interpreter
-BuildRequires:  fdk-aac-free-devel
 %if 0%{?launch_wayland_compositor}
 BuildRequires:  mutter
 BuildRequires:  gsettings-desktop-schemas
