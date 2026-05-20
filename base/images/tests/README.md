@@ -103,6 +103,19 @@ systemctl --user start podman.socket
 podman system service --timeout=0 &
 ```
 
+> **WSL users:** Rootless podman defaults to the systemd cgroup
+> manager, but the REST API (used by podman-py) does not auto-fallback
+> to cgroupfs like the CLI does. If container starts fail with
+> `sd-bus call: Permission denied`, create
+> `~/.config/containers/containers.conf`:
+>
+> ```toml
+> [engine]
+> cgroup_manager = "cgroupfs"
+> ```
+>
+> Then restart the podman socket.
+
 `pytest_configure` does a preflight check and fails fast if any tool
 needed for the current `--image-type` is missing.
 
