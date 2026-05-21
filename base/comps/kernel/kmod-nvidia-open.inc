@@ -14,7 +14,7 @@
 %if "%{_kmod_phase}" == "package" && %{with_up_base}
 
 %ifarch x86_64 aarch64
-%package -n kmod-%{_kmod_name}-%{nvidia_open_branch}
+%package -n kmod-%{_kmod_name}-%{nvidia_open_version}
 Summary:        NVIDIA open GPU kernel modules (driver %{nvidia_open_version})
 AutoReq:        no
 # NOTE: Version is inherited from kernel (%{version}), NOT nvidia_open_version.
@@ -22,22 +22,24 @@ AutoReq:        no
 Provides:       nvidia-open-kmod-version = %{nvidia_open_version}
 provides:       nvidia-kmod = %{nvidia_open_version}
 Provides:       kmod-%{_kmod_name} = %{version}-%{release}
+# Mark this kmod as install-only so multiple versions can coexist alongside
+# their matching kernels (dnf/dnf5 default installonlypkgs includes the
+# 'installonlypkg(kernel-module)' token).
+Provides:       installonlypkg(kernel-module)
 Requires:       %{name}-core-uname-r = %{KVERREL}
 Requires(post): kmod
 Requires(postun): kmod
 Conflicts:      nvidia-closed-kmod
 
-%description -n kmod-%{_kmod_name}-%{nvidia_open_branch}
+%description -n kmod-%{_kmod_name}-%{nvidia_open_version}
 Open-source NVIDIA GPU kernel modules (driver version %{nvidia_open_version})
 built from the official NVIDIA/open-gpu-kernel-modules repository for
 kernel %{KVERREL}.
 
 These modules support CUDA workloads on NVIDIA GPUs (Turing and later).
-Modules: nvidia.ko, nvidia-modeset.ko, nvidia-drm.ko, nvidia-uvm.ko,
-nvidia-peermem.ko.
 
 Each kernel version produces a separate kmod package
-(kmod-nvidia-open-<nvidia_branch>-<KVERREL>) so that multiple kernel versions
+(kmod-nvidia-open-<nvidia_driver_version>-<KVERREL>) so that multiple kernel versions
 can coexist with their own NVIDIA modules.
 Use 'Requires: nvidia-open-kmod-version = %{nvidia_open_version}' to depend on a
 specific NVIDIA driver version, or 'Requires: kmod-nvidia-open' for any version.
@@ -51,9 +53,9 @@ specific NVIDIA driver version, or 'Requires: kmod-nvidia-open' for any version.
 %if "%{_kmod_phase}" == "prep" && %{with_up_base}
 
 %ifarch x86_64 aarch64
-cd %{_builddir}
+pushd %{_builddir}
 tar -xf %{SOURCE6000}
-cd -
+popd
 %endif
 
 %endif
@@ -105,20 +107,13 @@ for mod in nvidia nvidia-modeset nvidia-drm nvidia-uvm nvidia-peermem; do
     ko="%{_builddir}/open-gpu-kernel-modules-%{nvidia_open_version}/kernel-open/${mod}.ko"
     install -m 0644 "${ko}" %{buildroot}/lib/modules/%{KVERREL}/extra/nvidia/
 done
-# Install modprobe config to blacklist conflicting modules
-install -D -m 0644 %{SOURCE6001} %{buildroot}%{_sysconfdir}/modprobe.d/kmod-%{_kmod_name}-%{nvidia_open_branch}.conf
-# Install depmod override config
-install -d %{buildroot}%{_sysconfdir}/depmod.d
-cat > %{buildroot}%{_sysconfdir}/depmod.d/kmod-%{_kmod_name}-%{nvidia_open_branch}.conf << 'DEPMOD_EOF'
-override nvidia %{KVERREL} extra/nvidia
-override nvidia-modeset %{KVERREL} extra/nvidia
-override nvidia-drm %{KVERREL} extra/nvidia
-override nvidia-uvm %{KVERREL} extra/nvidia
-override nvidia-peermem %{KVERREL} extra/nvidia
-DEPMOD_EOF
+# Install modprobe config to blacklist conflicting modules. Lives under
+# %{_modprobedir} (/usr/lib/modprobe.d) — vendor-supplied config, not
+# admin-editable, so it is owned by the package without %config(noreplace).
+install -D -m 0644 %{SOURCE6001} %{buildroot}%{_modprobedir}/kmod-%{_kmod_name}-%{nvidia_open_version}.conf
 # Install NVIDIA license file
 install -D -m 0644 %{_builddir}/open-gpu-kernel-modules-%{nvidia_open_version}/COPYING \
-    %{buildroot}%{_datadir}/licenses/kmod-%{_kmod_name}-%{nvidia_open_branch}/COPYING
+    %{buildroot}%{_datadir}/licenses/kmod-%{_kmod_name}-%{nvidia_open_version}/COPYING
 %endif
 
 %endif
@@ -129,21 +124,20 @@ install -D -m 0644 %{_builddir}/open-gpu-kernel-modules-%{nvidia_open_version}/C
 %if "%{_kmod_phase}" == "files" && %{with_up_base}
 
 %ifarch x86_64 aarch64
-%post -n kmod-%{_kmod_name}-%{nvidia_open_branch}
+%post -n kmod-%{_kmod_name}-%{nvidia_open_version}
 %{_sbindir}/depmod -a %{KVERREL} || :
 
-%postun -n kmod-%{_kmod_name}-%{nvidia_open_branch}
+%postun -n kmod-%{_kmod_name}-%{nvidia_open_version}
 %{_sbindir}/depmod -a %{KVERREL} || :
 
-%files -n kmod-%{_kmod_name}-%{nvidia_open_branch}
-%license %{_datadir}/licenses/kmod-%{_kmod_name}-%{nvidia_open_branch}/COPYING
+%files -n kmod-%{_kmod_name}-%{nvidia_open_version}
+%license %{_datadir}/licenses/kmod-%{_kmod_name}-%{nvidia_open_version}/COPYING
 /lib/modules/%{KVERREL}/extra/nvidia/nvidia.ko.%{compext}
 /lib/modules/%{KVERREL}/extra/nvidia/nvidia-modeset.ko.%{compext}
 /lib/modules/%{KVERREL}/extra/nvidia/nvidia-drm.ko.%{compext}
 /lib/modules/%{KVERREL}/extra/nvidia/nvidia-uvm.ko.%{compext}
 /lib/modules/%{KVERREL}/extra/nvidia/nvidia-peermem.ko.%{compext}
-%config(noreplace) %{_sysconfdir}/modprobe.d/kmod-%{_kmod_name}-%{nvidia_open_branch}.conf
-%{_sysconfdir}/depmod.d/kmod-%{_kmod_name}-%{nvidia_open_branch}.conf
+%{_modprobedir}/kmod-%{_kmod_name}-%{nvidia_open_version}.conf
 %endif
 
 %endif

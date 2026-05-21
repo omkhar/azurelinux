@@ -9,7 +9,6 @@ consider kmod-nvidia-open as an example:
 ```
 kernel.comp.toml
 ├── build.defines.nvidia_open_version = "595.58.03"
-├── build.defines.nvidia_open_branch = "595"
 ├── source-files[] → kernel tarball, NVIDIA tarball
 ├── overlays
 │   ├── [nvidia-open sources] .inc, modprobe.conf (Source6000-6002)
@@ -63,8 +62,6 @@ This allows a single `.inc` file to contain all phases of a kmod's lifecycle whi
 | `files` | After `%files modules-extra-matched` | `%post`/`%postun` scriptlets and file list |
 
 ## Naming and Versioning Strategy
-
-Kmod subpackages include a **branch** suffix derived from the driver's major version: `kmod-<name>-<branch>`. For example, NVIDIA driver `595.58.03` with `nvidia_open_branch = "595"` produces `kmod-nvidia-open-595`.
 
 This allows **multiple driver branches to coexist** — e.g., `kmod-nvidia-open-595` and a future `kmod-nvidia-open-600` can be installed side by side for different kernel versions or workloads.
 

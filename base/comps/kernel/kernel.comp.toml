@@ -20,7 +20,6 @@ azl_pkgrelease = "3"
 kextraversion = "1"
 # NVIDIA open GPU kernel module version (built as a subpackage of the kernel)
 nvidia_open_version = "595.58.03"
-nvidia_open_branch = "595"
 
 # Download the source tarball from the AzureLinux kernel repo
 [[components.kernel.source-files]]
@@ -32,8 +31,8 @@ origin = { type = "download", uri = "https://github.com/microsoft/CBL-Mariner-Li
 # Download the NVIDIA open GPU kernel module source tarball
 [[components.kernel.source-files]]
 filename = "open-gpu-kernel-modules-595.58.03.tar.gz"
-hash = "e0c4659ddf15e4f4e19cee05b49f88c9ba08ef3add0dfe08249798f58d0fe75e"
-hash-type = "SHA256"
+hash = "a422b6935209d590f57fa6766f59bb207d9130f8a6777af9245c4ff8cd0f4c4ccef4602a0b26d543e1e8efba24241180992fdb749ea4e5d2aa5218a584b85101"
+hash-type = "SHA512"
 origin = { type = "download", uri = "https://github.com/NVIDIA/open-gpu-kernel-modules/archive/refs/tags/595.58.03.tar.gz" }
 
 # Insert version and release information from the component defines into the spec file, and update the source URL to match the AzureLinux kernel source structure
