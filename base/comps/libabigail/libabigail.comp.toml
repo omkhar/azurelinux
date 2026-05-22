@@ -1,0 +1,29 @@
+# The upstream libabigail tarball `libabigail-2.9.tar.xz` (Source0) ships an
+# abidiff regression-test fixture set whose two separated-debuginfo files trip
+# anti-malware scanning on the AZL RPM-signing pipeline, which rejects
+# encrypted / unscannable payloads inside SRPMs:
+#
+#   - tests/data/test-abidiff-exit/PR30329/{old,new}-image/usr/lib/debug/
+#     usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6.debug
+#       Stripped DWARF debuginfo for a pre-built upstream sqlite3 shared
+#       library, used (with dwz multifile companions) to exercise abidiff
+#       across separated-debuginfo + dwz layouts. The scanner flags both
+#       .debug files as "packer_high_entropy:eod".
+#
+# Replace upstream Source0 with a deterministically-repacked tarball produced
+# by base/comps/libabigail/modify_source.sh, which strips the entire
+# PR30329/ fixture directory (so nothing in-tree references the missing
+# files) and patches tests/test-abidiff-exit.cc to drop the two
+# `InOutSpec in_out_specs[]` entries that exercised the fixture, keeping
+# `make check` green. The upstream filename is preserved so
+# `replace-upstream = true` swaps the entry in place in the Fedora `sources`
+# manifest -- no spec edit required.
+[components.libabigail]
+
+[[components.libabigail.source-files]]
+filename = "libabigail-2.9.tar.xz"
+hash = "526594be5ac79c01406cb33c2cb1b5003f8d2a341dcfb9c007479b89314aa8bea3e58a66605e104d81ab080a1036ff9538e5306c47656af0dc0965f4cbfa0ac0"
+hash-type = "SHA512"
+origin = { type = "download", uri = "https://azltempstaginglookaside.blob.core.windows.net/repo/pkgs_modified/libabigail/libabigail-2.9.tar.xz/sha512/526594be5ac79c01406cb33c2cb1b5003f8d2a341dcfb9c007479b89314aa8bea3e58a66605e104d81ab080a1036ff9538e5306c47656af0dc0965f4cbfa0ac0/libabigail-2.9.tar.xz" }
+replace-upstream = true
+replace-reason = "Repacked source tarball with tests/data/test-abidiff-exit/PR30329/ removed (two libsqlite3.so.0.8.6.debug fixtures inside it were flagged as packer_high_entropy:eod by the AZL signing-pipeline AV scanner) and tests/test-abidiff-exit.cc patched to drop the corresponding InOutSpec entries. See modify_source.sh."
